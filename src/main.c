@@ -44,25 +44,51 @@ int main(void) {
 
         Clay_BeginLayout();
 
-            CLAY_AUTO_ID({
+            CLAY(CLAY_ID("Main Container"), {
                 .layout = {
+                    .layoutDirection = CLAY_TOP_TO_BOTTOM,
+                    .childAlignment = { CLAY_ALIGN_X_CENTER },
                     .sizing = {
                         .width = CLAY_SIZING_GROW(0),
                         .height = CLAY_SIZING_GROW(0)
                     },
                     .padding = CLAY_PADDING_ALL(16)
                 },
-                .backgroundColor = { 30, 30, 30, 255 }
+                .backgroundColor = { 7, 7, 12, 255 }
             }) {
-                CLAY_AUTO_ID({
+                CLAY(CLAY_ID("Headline"), {
+                    .layout = {
+                        .layoutDirection = CLAY_TOP_TO_BOTTOM,
+                        .childAlignment = { CLAY_ALIGN_X_CENTER },
+                        .sizing = {
+                            .width = (float)GetScreenWidth() / 2,
+                            .height = (float)GetScreenHeight() / 2
+                        }
+                    }
+                }) {
+                    CLAY_TEXT(CLAY_STRING("Think it. Write it."), CLAY_TEXT_CONFIG({
+                        .fontId = 0,
+                        .fontSize = 48,
+                        .letterSpacing = 2,
+                        .textColor = { 255, 255, 255, 255 }
+                    }));
+                    CLAY_TEXT(CLAY_STRING("Ship it."), CLAY_TEXT_CONFIG({
+                        .fontId = 0,
+                        .fontSize = 48,
+                        .letterSpacing = 2,
+                        .textColor = { 255, 255, 255, 255 }
+                    }));
+                }
+                
+                CLAY(CLAY_ID("Workspace Prompt"), {
                     .layout = {
                         .sizing = {
-                            .width = CLAY_SIZING_FIXED(200),
-                            .height = CLAY_SIZING_GROW(0)
+                            .width = 250,
+                            .height = 250
                         }
                     },
-                    .backgroundColor = { 255, 0, 0, 255 }
-                }) {}
+                    .backgroundColor = { 255, 255, 255, 5 }
+                });
             }
 
         Clay_RenderCommandArray renderCommands = Clay_EndLayout(GetFrameTime());
