@@ -6,7 +6,5 @@ but that's not good enough for me. i wanted to find out if raylib can stand on t
 ## dependencies
 - raylib, for rendering
 - clay, for layout
-- nanosvg, for icons
-
 
 oh, also, raylib is true multi-platform, so feel free to try compiling and running this on red star OS or something :)
