@@ -4,7 +4,7 @@ raylib is a graphics library advertised for game development that supports, like
 but that's not good enough for me. i wanted to find out if raylib can stand on the bleeding edge of product design, so i threatened claude with hydrochloric acid to design a "flashy but sleek onboarding page for a notion-like webapp" using some "stereotypical hallmarks of vibecoding design," and tried recreating it using nothing but raylib in C to find out once and for all: **can the 🚀modern entrepreneur🚀 use it to make their million-dollar dream come true?**
 
 ## dependencies
-- raylib, for rendering
-- clay, for layout
+- [raylib](https://github.com/raysan5/raylib), for rendering
+- [clay](https://github.com/nicbarker/clay), for layout
 
 oh, also, raylib is true multi-platform, so feel free to try compiling and running this on red star OS or something :)
