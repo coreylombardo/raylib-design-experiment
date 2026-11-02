@@ -1,11 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "resource_dir.h"
 
 #include "../build/external/raylib-master/src/raylib.h"
+#include "../build/external/raylib-master/src/raymath.h"
 
 #define CLAY_IMPLEMENTATION
 #include "../build/external/clay/clay.h"
 #include "../build/external/clay/renderers/raylib/clay_renderer_raylib.c"
+
+// custom macros
+#define SPACER_HORIZONTAL CLAY_AUTO_ID({ .layout = { .sizing = { .width = CLAY_SIZING_GROW(0) } } }) {}
+#define VW(n) ((float)GetScreenWidth() * (n) / 100)
+#define INTER_REGULAR   0
+#define INTER_MEDIUM    1
+#define INTER_SEMIBOLD  2
+#define INTER_BOLD      3
+#define JB_MONO         4
 
 typedef struct {
     Clay_Color color;
@@ -17,6 +28,11 @@ static const float SPARKLE_PTS[8][2] = {
     {12, 2}, {9.8f, 8.8f}, {3, 11}, {9.8f, 13.2f},
     {12, 20}, {14.2f, 13.2f}, {21, 11}, {14.2f, 8.8f}
 };
+
+static void DrawGrid2D(int w, int h, int spacing, Color color) {
+    for(int x = 0; x <= w; x += spacing) DrawLine(x, 0, x, h, color);
+    for(int y = 0; y <= h; y += spacing) DrawLine(0, y, w, y, color);
+}
 
 void HandleClayErrors(Clay_ErrorData errorData) {
     printf("Clay error: %s\n", errorData.errorText.chars);
@@ -63,9 +79,14 @@ int main(void) {
         }
     );
     Clay_Raylib_Initialize(screenWidth, screenHeight, "raylib-design-experiment", FLAG_WINDOW_RESIZABLE);
+    SearchAndSetResourceDir("resources");
 
-    Font fonts[1];
-    fonts[0] = GetFontDefault();
+    Font fonts[5];
+    fonts[INTER_REGULAR]    = LoadFontEx("Inter-Regular.ttf", 144, NULL, 0);
+    fonts[INTER_MEDIUM]     = LoadFontEx("Inter-Medium.ttf", 144, NULL, 0);
+    fonts[INTER_SEMIBOLD]   = LoadFontEx("Inter-SemiBold.ttf", 144, NULL, 0);
+    fonts[INTER_BOLD]       = LoadFontEx("Inter-Bold.ttf", 144, NULL, 0);
+    fonts[JB_MONO]          = LoadFontEx("JetBrainsMono-Medium.ttf", 144, NULL, 0);
     Clay_SetMeasureTextFunction(Raylib_MeasureText, fonts);
     
     while(!WindowShouldClose()) {
@@ -89,7 +110,6 @@ int main(void) {
                     },
                     .padding = CLAY_PADDING_ALL(20)
                 },
-                .backgroundColor = { 7, 7, 12, 255 }
             }) {
 
                 CLAY(CLAY_ID("Top Bar"), {
@@ -110,10 +130,7 @@ int main(void) {
                         .textColor = { 255, 255, 255, 255 }
                     }));
 
-                    // growing spacer
-                    CLAY_AUTO_ID({
-                        .layout = { .sizing = { .width = CLAY_SIZING_GROW(0) } }
-                    }) {}
+                    SPACER_HORIZONTAL;
 
                     // right side: page indicator
                     CLAY_TEXT(CLAY_STRING("test shit"), CLAY_TEXT_CONFIG({
@@ -126,6 +143,7 @@ int main(void) {
                     .layout = {
                         .layoutDirection = CLAY_TOP_TO_BOTTOM,
                         .childAlignment = { CLAY_ALIGN_X_CENTER },
+                        .childGap = 20,
                         .sizing = {
                             .width = CLAY_SIZING_FIXED((float)GetScreenWidth() / 2),
                             .height = CLAY_SIZING_FIXED((float)GetScreenHeight() / 2)
@@ -139,7 +157,7 @@ int main(void) {
                             .padding = { 16, 16, 0, 0 },
                             .childGap = 8
                         },
-                        .backgroundColor = { 255, 255, 255, 6 },
+                        .backgroundColor = { 255, 255, 255, 15.3f },
                         .cornerRadius = CLAY_CORNER_RADIUS(999)
                     }) {
                         CLAY(CLAY_ID("Aurora Sparkle"), {
@@ -148,27 +166,46 @@ int main(void) {
                         }) {}
 
                         CLAY_TEXT(CLAY_STRING("Aurora AI is now in your workspace"), CLAY_TEXT_CONFIG({
-                            .fontId = 0, .fontSize = 13, .letterSpacing = 2,
+                            .fontId = INTER_REGULAR, .fontSize = 13, .letterSpacing = 2,
                             .textColor = { 214, 214, 230, 255 }
                         }));
                     }
 
-                    CLAY_TEXT(CLAY_STRING("Think it. Write it."), CLAY_TEXT_CONFIG({
-                        .fontId = 0, .fontSize = 48, .letterSpacing = 2,
-                        .textColor = { 255, 255, 255, 255 }
-                    }));
+                    CLAY(CLAY_ID("Headline"), {
+                        .layout = {
+                            .layoutDirection = CLAY_TOP_TO_BOTTOM,
+                            .childAlignment = { CLAY_ALIGN_X_CENTER },
+                            .childGap = 0
+                        }
+                    }) {
+                        CLAY_TEXT(CLAY_STRING("Think it. Write it."), CLAY_TEXT_CONFIG({
+                            .fontId = INTER_BOLD, 
+                            .fontSize = (uint16_t)Clamp(VW(7), 42, 76),
+                            .letterSpacing = 0,
+                            .textColor = { 255, 255, 255, 255 }
+                        }));
 
-                    CLAY_TEXT(CLAY_STRING("Ship it."), CLAY_TEXT_CONFIG({
-                        .fontId = 0, .fontSize = 48, .letterSpacing = 2,
-                        .textColor = { 255, 255, 255, 255 }
-                    }));
+                        CLAY_TEXT(CLAY_STRING("Ship it."), CLAY_TEXT_CONFIG({
+                            .fontId = INTER_BOLD, 
+                            .fontSize = (uint16_t)Clamp(VW(7), 42, 76), 
+                            .letterSpacing = 1,
+                            .textColor = { 255, 255, 255, 255 }
+                        }));
+                    }
 
-                    CLAY_TEXT(CLAY_STRING(
-                        "Docs, tasks and wikis in one blazing-fast canvas. Let's set up your workspace in under a minute."
-                    ), CLAY_TEXT_CONFIG({
-                        .fontId = 0, .fontSize = 18, .letterSpacing = 2,
-                        .textColor = { 168, 168, 189, 255 }
-                    }));
+                    CLAY(CLAY_ID("Subtitle"), {
+                        .layout = {
+                            .sizing = { .width = CLAY_SIZING_GROW(0, 520) }
+                        }
+                    }){
+                        CLAY_TEXT(CLAY_STRING(
+                            "Docs, tasks and wikis in one blazing-fast canvas. Let's set up your workspace in under a minute."
+                        ), CLAY_TEXT_CONFIG({
+                            .fontId = INTER_REGULAR, .fontSize = 18,
+                            .textColor = { 168, 168, 189, 255 },
+                            .textAlignment = CLAY_TEXT_ALIGN_CENTER
+                        }));
+                    } {}
                 }
                 
                 CLAY(CLAY_ID("Workspace Prompt"), {
@@ -178,7 +215,7 @@ int main(void) {
                             .height = CLAY_SIZING_FIXED(300)
                         }
                     },
-                    .backgroundColor = { 255, 255, 255, 5 },
+                    .backgroundColor = { 255, 255, 255, 12.75f },
                     .cornerRadius = CLAY_CORNER_RADIUS(25)
                 }) {}
             }
@@ -190,12 +227,16 @@ int main(void) {
         //
 
         BeginDrawing();
-            ClearBackground(BLACK);
+            ClearBackground((Color){ 7, 7, 12, 255 });
+            DrawGrid2D(GetScreenWidth(), GetScreenHeight(), 56, ColorAlpha((Color){ 255, 255, 255, 255 }, 0.05f));
             Clay_Raylib_Render(renderCommands, fonts);
             RenderCustomCommands(renderCommands);
         EndDrawing();
     }
 
+    for(int i = 0; i < (int)sizeof(fonts) / sizeof(fonts[0]); i++) {
+        UnloadFont(fonts[i]);
+    }
     Clay_Raylib_Close();
     return 0;
 }
